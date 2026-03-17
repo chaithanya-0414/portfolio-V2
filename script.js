@@ -68,47 +68,72 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// ===== Intersection Observer for Animations =====
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
+// ===== Modern Animations Initialization =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize AOS
+    AOS.init({
+        duration: 1000,
+        once: true,
+        mirror: false
     });
-}, observerOptions);
 
-// Observe all animated elements
-const animatedElements = document.querySelectorAll('.skill-card, .project-card, .timeline-item, .about-image, .about-text');
-animatedElements.forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-    observer.observe(el);
+    // Initialize GSAP ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero Section Entrance Animation
+    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+    tl.from(".navbar", { y: -100, opacity: 0, duration: 1.2 })
+        .from(".profile-image-container", { scale: 0, opacity: 0, duration: 1 }, "-=0.8")
+        .from(".availability-badge", { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
+        .from(".home-title", { y: 30, opacity: 0, duration: 1 }, "-=0.6")
+        .from(".home-subtitle", { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
+        .from(".home-description", { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
+        .from(".social-links-hero", { y: 20, opacity: 0, duration: 0.8 }, "-=0.6");
+
+    // Typing Effect Replacement
+    initTypingEffect();
+
+    // Initialize tsParticles (confetti floating effect)
+    if (typeof confetti !== 'undefined') {
+        initParticles();
+    }
 });
 
-// ===== Typing Effect for Home Section (Optional Enhancement) =====
-const homeSubtitle = document.querySelector('.home-subtitle');
-if (homeSubtitle) {
-    const text = homeSubtitle.textContent;
-    homeSubtitle.textContent = '';
-    let i = 0;
+function initTypingEffect() {
+    const typingTitle = document.querySelector('.typing-title');
+    if (!typingTitle) return;
 
-    function typeWriter() {
-        if (i < text.length) {
-            homeSubtitle.textContent += text.charAt(i);
-            i++;
-            setTimeout(typeWriter, 100);
+    const roles = ["Python Developer", "Data Analyst", "ML Engineer", "Freelance Designer"];
+    let roleIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typeSpeed = 100;
+
+    function type() {
+        const currentRole = roles[roleIndex];
+        if (isDeleting) {
+            typingTitle.textContent = "I'm a " + currentRole.substring(0, charIndex - 1);
+            charIndex--;
+            typeSpeed = 50;
+        } else {
+            typingTitle.textContent = "I'm a " + currentRole.substring(0, charIndex + 1);
+            charIndex++;
+            typeSpeed = 100;
         }
-    }
 
-    // Start typing effect after page load
-    setTimeout(typeWriter, 1000);
+        if (!isDeleting && charIndex === currentRole.length) {
+            isDeleting = true;
+            typeSpeed = 2000; // Pause at end
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            roleIndex = (roleIndex + 1) % roles.length;
+            typeSpeed = 500;
+        }
+
+        setTimeout(type, typeSpeed);
+    }
+    type();
 }
 
 // ===== Counter Animation for Stats =====
@@ -150,39 +175,29 @@ if (aboutStats) {
     statsObserver.observe(aboutStats);
 }
 
-// ===== Parallax Effect for Background =====
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const parallaxElements = document.querySelectorAll('.home-section::before');
+// ===== Particles Logic =====
+function initParticles() {
+    const duration = 3 * 1000,
+        animationEnd = Date.now() + duration,
+        defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-    parallaxElements.forEach(element => {
-        const speed = 0.5;
-        element.style.transform = `translateY(${scrolled * speed}px)`;
-    });
-});
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
 
-// ===== Initialize on Page Load =====
-window.addEventListener('load', () => {
-    // Set initial active link
-    setActiveLink();
+    const interval = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
 
-    // Add loaded class to body for animations
-    document.body.classList.add('loaded');
-});
-
-// ===== Smooth Reveal on Scroll =====
-const revealElements = document.querySelectorAll('.section');
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
         }
-    });
-}, { threshold: 0.15 });
 
-revealElements.forEach(el => {
-    revealObserver.observe(el);
-});
+        const particleCount = 50 * (timeLeft / duration);
+
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+    }, 1500); // Slower interval for subtle effect
+}
 
 // ===== Add Gradient Animation to Profile Image =====
 // Gradient Animation Removed
