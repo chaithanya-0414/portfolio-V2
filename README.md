@@ -3,7 +3,7 @@
 Welcome to my personal portfolio website source code. This project showcases my skills, background, and projects in Data Analytics, Machine Learning, and Freelance Presentation Design.
 
 ## 🚀 Live Demo
-[View Live Portfolio](https://chaithanya-0414.github.io/portfolio/)
+[View Live Portfolio]
 
 ## 🛠 Features
 - **Responsive Design**: Works on Desktop, Tablet, and Mobile.
