@@ -221,4 +221,43 @@ if (viewFilesBtn && fileListContainer) {
     });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    // ===== View Mode Toggle Logic =====
+    const viewToggle = document.getElementById('view-mode-toggle');
+    const viewBtns = document.querySelectorAll('.view-btn');
+
+    if (viewToggle) {
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                
+                // Update active state
+                viewBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Apply mode
+                if (mode === 'mobile') {
+                    document.body.classList.add('mobile-mode');
+                    localStorage.setItem('view-mode', 'mobile');
+                    console.log('Switched to Mobile Preview Mode 📱');
+                } else {
+                    document.body.classList.remove('mobile-mode');
+                    localStorage.setItem('view-mode', 'desktop');
+                    console.log('Switched to Desktop View Mode 💻');
+                }
+            });
+        });
+
+        // Check saved preference
+        const savedMode = localStorage.getItem('view-mode');
+        if (savedMode === 'mobile') {
+            document.body.classList.add('mobile-mode');
+            const mobileBtn = document.querySelector('.view-btn[data-mode="mobile"]');
+            const desktopBtn = document.querySelector('.view-btn[data-mode="desktop"]');
+            if (mobileBtn) mobileBtn.classList.add('active');
+            if (desktopBtn) desktopBtn.classList.remove('active');
+        }
+    }
+});
+
 console.log('Portfolio initialized successfully! 🚀');
